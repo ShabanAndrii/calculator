@@ -3,7 +3,7 @@
 import sys
 import ast
 
-
+from functools import partial
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
     QApplication,
@@ -39,7 +39,7 @@ class PyCalcWindow(QMainWindow):
     def _createDisplay(self):
         self.display = QLineEdit()
         self.display.setFixedHeight(DISPLAY_HEIGHT)
-        self.display.setAlignment(Qt.AlignRight)
+        self.display.setAlignment(Qt.AlignmentFlag.AlignRight)
         self.display.setReadOnly(True)
         self.generalLayout.addWidget(self.display)
 
