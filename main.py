@@ -1,6 +1,7 @@
 """PyCalc is a simple calculator built with Python and PyQt."""
 
 import sys
+import ast
 
 
 from PyQt6.QtCore import Qt
@@ -15,6 +16,7 @@ from PyQt6.QtWidgets import (
 )
 
 
+ERROR_MSG = "ERROR"
 WINDOW_SIZE = 235
 DISPLAY_HEIGHT = 35
 BUTTON_SIZE = 40
@@ -37,7 +39,7 @@ class PyCalcWindow(QMainWindow):
     def _createDisplay(self):
         self.display = QLineEdit()
         self.display.setFixedHeight(DISPLAY_HEIGHT)
-        self.display.setAlignment(Qt.AlignRight)  # Уніфікована версія для сумісності
+        self.display.setAlignment(Qt.AlignRight)
         self.display.setReadOnly(True)
         self.generalLayout.addWidget(self.display)
 
@@ -71,6 +73,38 @@ class PyCalcWindow(QMainWindow):
     def clearDisplay(self):
         """Clear the display."""
         self.setDisplayText("")
+
+
+def evaluateExpression(expression):
+    """Evaluate a mathematical expression safely."""
+    try:
+        # Парсимо вираз у абстрактне синтаксичне дерево
+        parsed_expr = ast.parse(expression, mode="eval")
+
+        # Дозволені тільки числа та математичні операції
+        allowed_nodes = {
+            ast.Expression,
+            ast.BinOp,
+            ast.UnaryOp,
+            ast.Num,
+            ast.Add,
+            ast.Sub,
+            ast.Mult,
+            ast.Div,
+            ast.Mod,
+            ast.Pow,
+            ast.LParen,
+            ast.RParen,
+        }
+
+        for node in ast.walk(parsed_expr):
+            if type(node) not in allowed_nodes:
+                return ERROR_MSG
+
+        result = str(eval(expression, {"__builtins__": {}}, {}))
+    except Exception:
+        result = ERROR_MSG
+    return result
 
 
 def main():
